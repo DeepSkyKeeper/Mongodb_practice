@@ -9,6 +9,7 @@ import com.mongodb.client.model.Sorts;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.List;
@@ -21,7 +22,9 @@ public class Main {
         MongoDatabase db = mongoClient.getDatabase("db1");
         MongoCollection<Document> collection = db.getCollection("mycol");
 
-        //добавление
+        /**
+         * добавление
+         */
 //     Document newDoc = new Document("name","Adr").
 //             append("age",45).
 //             append("prof",new Document("title","Dev").append("description","test description"));
@@ -33,7 +36,9 @@ public class Main {
 //
 //     collection.insertOne(newDoc);
 
-//        //изменение
+/**
+ *изменение
+ */
 //        BasicDBObject searchObj = new BasicDBObject();
 //        searchObj.append("first_name", "Milena");
 //        BasicDBObject changeObj = new BasicDBObject();
@@ -60,7 +65,7 @@ public class Main {
             System.out.println(a.get("first_name") + "\t" + a.get("phone_number"));
         });
         Consumer<Document> printBlock3 = (a -> {
-            System.out.println(a.get("_id") + "\t"+"средняя зарплата" +"\t"+ a.get("avg_salary"));
+            System.out.println(a.get("_id") + "\t" + "средняя зарплата" + "\t" + a.get("avg_salary"));
         });
         Consumer<Document> printAllBlock = (a -> {
             if (a.containsKey("birth_date"))
@@ -92,12 +97,12 @@ public class Main {
 
         //группировка c аккумулированием
         System.out.println("\n Подсчет средней зарплаты всех работников");
-        Bson group=Aggregates.group(null,
-                Accumulators.avg("avg_salary","$"+"salary"));
+        Bson group = Aggregates.group(null,
+                Accumulators.avg("avg_salary", "$" + "salary"));
         collection.aggregate(List.of(group)).forEach(printBlock3);
         System.out.println("\n Подсчет средней зарплаты по группам");
-       group=Aggregates.group("$job_id",
-                Accumulators.avg("avg_salary","$"+"salary"));
+        group = Aggregates.group("$job_id",
+                Accumulators.avg("avg_salary", "$" + "salary"));
         collection.aggregate(List.of(group)).forEach(printBlock3);
 
 //    5.Напишите запрос MongoDB для отображения только имени и номера телефона сотрудников
@@ -107,18 +112,18 @@ public class Main {
 
         //6.выборка по условию (дополнительное задание)
         System.out.println("\n выборка по полю job_id ='arch");
-        Bson filter =Aggregates.match(Filters.eq("job_id", "arch"));
+        Bson filter = Aggregates.match(Filters.eq("job_id", "arch"));
         collection.aggregate(List.of(filter)).forEach(printAllBlock);
 
         //счетчик
-        Document doc = collection.aggregate(List.of(filter,Aggregates.count())).first();
+        Document doc = collection.aggregate(List.of(filter, Aggregates.count())).first();
         assert doc != null;
         System.out.println("\n Количество записей 'arch'" + doc.get("count"));
 
 //        7.Выборка с ограничением записей
         System.out.println("\n Выборка с ограничением записей до 1");
         Bson limit = Aggregates.limit(1);
-        collection.aggregate(List.of(filter,limit)).forEach(printAllBlock);
+        collection.aggregate(List.of(filter, limit)).forEach(printAllBlock);
     }
 
     //получить имена таблиц

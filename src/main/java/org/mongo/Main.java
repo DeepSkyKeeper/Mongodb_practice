@@ -52,6 +52,7 @@ public class Main {
         //выборка
 //        searchObj = new BasicDBObject();
 //        searchObj.append("last_name","Fomina");
+
         //в find можно послать searchObj
 
         //удаление таблицы по идентификатору
@@ -59,23 +60,11 @@ public class Main {
         String df = "dd-MM-yyyy";
         SimpleDateFormat sdf = new SimpleDateFormat(df);
 
-        Block<Document> printBlock = System.out::println;
-        Consumer<Document> printBlock2 = (a -> {
-            System.out.println(a.get("first_name") + "\t" + a.get("phone_number"));
-        });
-        Consumer<Document> printBlock3 = (a -> {
-            System.out.println(a.get("_id") + "\t" + "средняя зарплата" + "\t" + a.get("avg_salary"));
-        });
-        Consumer<Document> printAllBlock = (a -> {
-            if (a.containsKey("birth_date"))
-                System.out.println(a.get("first_name") + "\t" + a.get("last_name") + "\t" + a.get("email") + "\t"
-                        + a.get("phone_number") + "\t" + sdf.format(a.getDate("birth_date")) + "\t" + a.get("job_id") + "\t" +
-                        a.get("salary"));
-        });
+        Result result = getResult(sdf);
 
         System.out.println("Вывод всех данных");
 //        1.Напишите запрос MongoDB для отображения всех данных из представленной таблицы
-        collection.find().forEach(printBlock);
+        collection.find().forEach(result.printBlock);
 
 //        2.Напишите запрос MongoDB для отображения ФИО и даты рождения всех лиц
 //        из представленной таблицы
@@ -90,7 +79,7 @@ public class Main {
         //Сортировка по полям
         System.out.println("\n Сортировка по зп в порядке уменьшения");
         Bson sort = Aggregates.sort(Sorts.descending("salary"));
-        collection.aggregate(List.of(sort)).forEach(printAllBlock);
+        collection.aggregate(List.of(sort)).forEach(result.printAllBlock);
 
 //        4.Напишите запрос MongoDB для отображения средней зарплаты всех работников
 
@@ -98,21 +87,21 @@ public class Main {
         System.out.println("\n Подсчет средней зарплаты всех работников");
         Bson group = Aggregates.group(null,
                 Accumulators.avg("avg_salary", "$" + "salary"));
-        collection.aggregate(List.of(group)).forEach(printBlock3);
+        collection.aggregate(List.of(group)).forEach(result.printBlock3);
         System.out.println("\n Подсчет средней зарплаты по группам");
         group = Aggregates.group("$job_id",
                 Accumulators.avg("avg_salary", "$" + "salary"));
-        collection.aggregate(List.of(group)).forEach(printBlock3);
+        collection.aggregate(List.of(group)).forEach(result.printBlock3);
 
 //    5.Напишите запрос MongoDB для отображения только имени и номера телефона сотрудников
 //        из представленной таблицы
         System.out.println("\n Вывод имени и номера телефона");
-        collection.find().forEach(printBlock2);
+        collection.find().forEach(result.printBlock2);
 
         //6.выборка по условию (дополнительное задание)
         System.out.println("\n выборка по полю job_id ='arch");
         Bson filter = Aggregates.match(Filters.eq("job_id", "arch"));
-        collection.aggregate(List.of(filter)).forEach(printAllBlock);
+        collection.aggregate(List.of(filter)).forEach(result.printAllBlock);
 
         //счетчик
         Document doc = collection.aggregate(List.of(filter, Aggregates.count())).first();
@@ -122,7 +111,39 @@ public class Main {
 //        7.Выборка с ограничением записей
         System.out.println("\n Выборка с ограничением записей до 1");
         Bson limit = Aggregates.limit(1);
-        collection.aggregate(List.of(filter, limit)).forEach(printAllBlock);
+        collection.aggregate(List.of(filter, limit)).forEach(result.printAllBlock);
+    }
+
+    private static Result getResult(SimpleDateFormat sdf) {
+        Block<Document> printBlock = System.out::println;
+        Consumer<Document> printBlock2 = (a -> {
+            System.out.println(a.get("first_name") + "\t" + a.get("phone_number"));
+        });
+        Consumer<Document> printBlock3 = (a -> {
+            System.out.println(a.get("_id") + "\t" + "средняя зарплата" + "\t" + a.get("avg_salary"));
+        });
+        Consumer<Document> printAllBlock = (a -> {
+            if (a.containsKey("birth_date"))
+                System.out.println(a.get("first_name") + "\t" + a.get("last_name") + "\t" + a.get("email") + "\t"
+                        + a.get("phone_number") + "\t" + sdf.format(a.getDate("birth_date")) + "\t" + a.get("job_id") + "\t" +
+                        a.get("salary"));
+        });
+        Result result = new Result(printBlock, printBlock2, printBlock3, printAllBlock);
+        return result;
+    }
+
+    private static class Result {
+        public final Block<Document> printBlock;
+        public final Consumer<Document> printBlock2;
+        public final Consumer<Document> printBlock3;
+        public final Consumer<Document> printAllBlock;
+
+        public Result(Block<Document> printBlock, Consumer<Document> printBlock2, Consumer<Document> printBlock3, Consumer<Document> printAllBlock) {
+            this.printBlock = printBlock;
+            this.printBlock2 = printBlock2;
+            this.printBlock3 = printBlock3;
+            this.printAllBlock = printAllBlock;
+        }
     }
 
     //получить имена таблиц

@@ -9,10 +9,8 @@ import org.bson.Document;
 public class MongoConnect {
     public static MongoCollection<Document> getCollection(String colName) {
 
-        MongoDatabase db;
-        try (MongoClient mongoClient = MongoClients.create("mongodb://localhost:27017")) {
-            db = mongoClient.getDatabase("db1");
-        }
+        MongoClient mongoClient = MongoClients.create("mongodb://localhost:27017");
+        MongoDatabase db = mongoClient.getDatabase("db1");
         return db.getCollection(colName);
     }
 }

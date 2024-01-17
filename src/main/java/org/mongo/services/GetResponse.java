@@ -1,6 +1,7 @@
 package org.mongo.services;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Projections;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -20,7 +21,14 @@ public class GetResponse {
         );
 
 // Запрос с использованием проекции
-        collection.find().projection(projection).forEach(ResFormat.getPrintAllBlock());
+        MongoCursor<Document> cursor = collection.find().projection(projection).cursor();
+        while (cursor.hasNext()) {
+            Document doc = collection.find().projection(projection).cursor().next();
+            doc.forEach((a, b) -> {
+                System.out.println(a + "\t" + b);
+            });
+            cursor.next();
+        }
 
 //        searchObj = new BasicDBObject();
 //        searchObj.append("last_name","Fomina");

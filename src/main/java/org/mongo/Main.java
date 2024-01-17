@@ -5,10 +5,7 @@ import com.mongodb.client.*;
 import com.mongodb.client.model.*;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-
 import org.mongo.services.*;
-
-
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -21,7 +18,7 @@ public class Main {
          * добавление
          */
 //      var add =new AddToDB(collection);
-//        add.data2();
+//        add.data3();
 
 /**
  *изменение
@@ -73,7 +70,7 @@ public class Main {
 //    5.Напишите запрос MongoDB для отображения только имени и номера телефона сотрудников
 //        из представленной таблицы
         System.out.println("\n Вывод имени и номера телефона");
-        new GetResponse(collection).getSomeFields("name", "phone_number");
+        new GetResponse(collection).getSomeFields("first_name", "phone_number");
 
         //6.выборка по условию (дополнительное задание)
         System.out.println("\n выборка по полю job_id ='arch");
@@ -89,6 +86,7 @@ public class Main {
         System.out.println("\n Выборка с ограничением записей до 1");
         Bson limit = Aggregates.limit(1);
         collection.aggregate(List.of(filter, limit)).forEach(ResFormat.getPrintAllBlock());
+
     }
 
 //    В методе getTableList, getDbList, getСol
